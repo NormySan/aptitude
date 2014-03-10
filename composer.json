@@ -1,0 +1,7 @@
+{
+    "require": {
+    	"container-interop/container-interop": "dev-master",
+        "Mockery/Mockery": "*",
+        "phpunit/phpunit": "*"
+    }
+}
