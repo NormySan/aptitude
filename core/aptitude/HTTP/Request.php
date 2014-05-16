@@ -164,4 +164,18 @@ class Request {
 
 		return false;
 	}
+
+	/**
+	 * Check of the request is an AJAX request.
+	 *
+	 * @return bool
+	 */
+	public function isAjax()
+	{
+		if (isset($this->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+			return true;
+		}
+
+		return false;
+	}
 }

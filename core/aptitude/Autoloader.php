@@ -21,11 +21,6 @@ class Autoloader
 	private $directories = array();
 
 	/**
-	 * Construct the class
-	 */
-	// function __construct() {}
-
-	/**
 	 * Register the class as an autoloader
 	 */
 	public function register()

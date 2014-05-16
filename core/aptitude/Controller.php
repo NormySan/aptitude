@@ -29,17 +29,23 @@ abstract class Controller
 	public function setupLayout() {}
 
 	/**
-	 * Execute an action on the controller.
+	 * Run a method on the controller.
 	 *
 	 * @param string  $method
 	 * @param array   $parameters
-	 * @return \Aptitude\HTTP\Response
+	 *
+	 * @return mixed
 	 */
-	public function callAction($method, $parameters)
+	public function callMethod($method, $parameters)
 	{
 		$this->setupLayout();
 
 		$response = call_user_func_array(array($this, $method), $parameters);
+
+		// Do not setup layout if this is a json response.
+		if ($response instanceof Response && $response->isJsonResponse()) {
+			return $response;
+		}
 
 		if (is_null($response) && ! is_null($this->layout))
 		{

@@ -12,5 +12,5 @@ class Response extends Facade {
 	 *
 	 * @return string
 	 */
-	protected static function getFacadeAccessor() { return 'response'; }
+	protected static function getFacadeService() { return 'response'; }
 }

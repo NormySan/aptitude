@@ -4,73 +4,147 @@ use Exception;
 use Aptitude\HTTP\Request;
 use Aptitude\HTTP\Response;
 use Aptitude\Interfaces\RenderableInterface;
+use Aptitude\Router\RouteCollection as Collection;
 
-/**
-* Router class
-*/
 class Router
 {
 	/**
-	 * Collection of configured routes
-	 *
+	 * Collection of registered routes.
+	 * 
 	 * @var array
 	 */
-	private $collection = array();
+	private $routes = array();
 
 	/**
-	 * Request class.
+	 * Array of supported methods.
+	 */
+	private $availibleMethods = array('GET', 'POST', 'PUT', 'DELETE');
+
+	/**
+	 * The set base path.
+	 * 
+	 * @var string
+	 */
+	private $basePath = '';
+
+	/**
+	 * Constructor.
 	 *
-	 * @var \Aptitude\HTTP\Request
+	 * @param  Collection $collection Collection of routes.
 	 */
-	private $request;
-
-	/**
-	 * Do some stuff on instantiation
-	 */
-	public function __construct(Request $request)
+	public function __construct(Collection $collection)
 	{
-		$this->request = $request;
+		$this->routes = $collection;
 	}
 
 	/**
-	 * Process routes.
+	 * Process the current request.
+	 * 
+	 * @return object|bool Matched route or false.
 	 */
 	public function process()
-	{
-		$requestUri 	= $this->request->getRequestUri();
-		$requestMethod 	= $this->request->getRequestMethod();
-
-		foreach ($this->collection as $route)
-		{
-			if (strpos($route['route'], '/') > 0 || strpos($route['route'], '/') === FALSE)
-			{
-				$route['route'] = '/' . $route['route'];
-			}
-
-			if ($requestUri == $route['route'] && $requestMethod === $route['method'])
-			{
-				// If the route is callable it's a callback.
-				if (is_callable($route['class'])) {
-					return $this->callableRoute($route);
-				}
-
-				$parts = explode('@', $route['class']);
-
-				$class = new $parts[0];
-
-				$response = $class->callAction($parts[1], array());
-
-				if ($response instanceof RenderableInterface) {
-					return $this->buildResponse($response->render());
-				}
-			}
-		}
-
-		throw new Exception('The requested route could not be found: ' . $requestUri);
+	{	
+		return $this->match($this->requestUrl(), $this->requestMethod());
 	}
 
 	/**
-	 * Return new response object.
+	 * Find a match for the current route.
+	 * 
+	 * @param  string $requestUrl    Current url.
+	 * @param  string $requestMethod Current method.
+	 * @return object|bool           Matched route or false.
+	 */
+	public function match($requestUrl, $requestMethod = 'GET')
+	{
+		foreach($this->routes->all() as $route) {
+
+			// compare server request method with route's allowed http methods
+            if (! in_array($requestMethod, (array) $route->getMethod())) {
+                continue;
+            }
+
+            // check if request _url matches route regex. if not, return false.
+            if (! preg_match("@^". $this->basePath . $route->getRegex() ."*$@i", $requestUrl, $matches)) {
+                continue;
+            }
+
+            $params = array();
+
+            // Get all parameter values from the url.
+            if (preg_match_all("/:([\w-]+)/", $route->getUrl(), $argument_keys)) {
+
+                // grab array with matches
+                $argument_keys = $argument_keys[1];
+
+                // loop trough parameter names, store matching value in $params array
+                foreach ($argument_keys as $key => $name) {
+                    if (isset($matches[$key + 1])) {
+                        $params[$name] = $matches[$key + 1];
+                    }
+                }
+
+            }
+
+            // Set parameters on the route.
+            $route->setParameters($params);
+
+            return $this->processRoute($route);
+		}
+
+		// If no route was founc throw an exception.
+		throw new Exception("No route matching [$requestUrl] was found.");
+	}
+
+	/**
+	 * Process matched route.
+	 *
+	 * @param   $route The matched route.
+	 * @return  \Aptitude\HTTP\Response
+	 */
+	public function processRoute($route)
+	{
+		$config = $route->getConfig();
+
+		// If the route is callable it's a callback.
+		if (is_callable($config['controller'])) {
+			return $this->callableRoute($route);
+		}
+
+		list($controller, $method) = explode('@', $config['controller']);
+
+		$class = new $controller;
+
+		// Call method on the controller and supply it with the parameters.
+		$response = $class->callMethod($method, $route->getParameters());
+
+		// If the response is an instance of renderable interface build a
+		// response for it and return.
+		if ($response instanceof RenderableInterface) {
+			return $this->buildResponse($response->render());
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Create a new response from the callable function.
+	 *
+	 * @return  \Aptitude\HTTP\Response
+	 */
+	public function callableRoute($route)
+	{
+		$config = $route->getConfig();
+
+		$content = call_user_func($config['controller']);
+
+		return $this->buildResponse($content);
+	}
+
+	/**
+	 * Return a new response object.
+	 * 
+	 * @param   $content Content for the response.
+	 * @return  \Aptitude\HTTP\Response
 	 */
 	public function buildResponse($content)
 	{
@@ -78,68 +152,45 @@ class Router
 	}
 
 	/**
-	 * Create a new response from the callable function.
+	 * Set base path for all requests.
+	 * 
+	 * @param string $path Path to set for base path.
 	 */
-	public function callableRoute($route)
+	public function setBasePath($path)
 	{
-		$content = call_user_func($route['class']);
-
-		return $this->buildResponse($content);
-	}
-
-	/*
-	public function getCurrentRoute()
-	{
-		// Get the full hostname
-		$uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-		// Remove any potential query string from the current route
-		$uri = strtok($uri, '?');
-
-		// Remove the site path from the uri so we only get the segments that we actually want
-		$uri = str_replace($this->siteUrl, '', $uri);
-
-		return $uri;
-	}
-	*/
-
-	/**
-	 * Returns the current route
-	 * @return string
-	 */
-	public function current()
-	{
-		return $this->currentRoute;
+		$this->basePath = (string) $path;
 	}
 
 	/**
-	 * Adds a new get route
+	 * Returns current requests URL.
+	 * 
+	 * @return string Request URL.
 	 */
-	public function get($route, $class)
+	public function requestUrl()
 	{
-		$this->addRoute($route, $class, 'GET');
+		return $_SERVER['REQUEST_URI'];
 	}
 
 	/**
-	 * Adds a new post route
+	 * Return method of the current request.
+	 * 
+	 * @return string Method.
 	 */
-	public function post($route, $class)
+	public function requestMethod()
 	{
-		$this->addRoute($route, $class, 'POST');
-	}
+		// Since PHP does not support methods other than GET and POST we need to
+		// check for a custom value supplied with the request. If it matches any
+		// of the supported requests we use that method instead of the set metod
+		// for the request.
+		if (isset($_POST['_method'])) {
 
-	/**
-	 * Adds a new route
-	 * @return Router
-	 */
-	public function addRoute($route, $class, $method)
-	{
-		$this->collection[] = array(
-			'route' 	=> $route,
-			'class' 	=> $class,
-			'method' 	=> $method
-		);
+			$method = strtoupper($_POST['_method']);
 
-		return $this;
+			if (in_array($method, $this->availibleMethods)) {
+				return $method;
+			}
+		}
+
+		return $_SERVER['REQUEST_METHOD'];
 	}
 }

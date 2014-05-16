@@ -12,5 +12,5 @@ class DB
 	 *
 	 * @return string
 	 */
-	protected static function getFacadeAccessor() { return 'response'; }
+	protected static function getFacadeService() { return 'db'; }
 }

@@ -3,24 +3,39 @@
 class Response {
 
 	/**
+	 * Content to send.
+	 *
 	 * @var string
 	 */
 	protected $content;
 
 	/**
+	 * Status code to send.
+	 *
 	 * @var integer
 	 */
 	protected $statusCode;
 
 	/**
+	 * Status text to send.
+	 *
 	 * @var string
 	 */
 	protected $statusText;
 
 	/**
+	 * Array of headers to send.
+	 *
 	 * @var array
 	 */
 	protected $headers;
+
+	/**
+	 * Set to true if this is a JSON response.
+	 *
+	 * @var bool
+	 */
+	protected $json = false;
 
 	/**
 	 * Contains a list of status codes and their text
@@ -120,8 +135,6 @@ class Response {
 		if (function_exists('fastcgi_finish_request')) {
 			fastcgi_finish_request();
         }
-
-		return $this;
 	}
 
 	/**
@@ -180,15 +193,41 @@ class Response {
 	}
 
 	/**
-	 * @return Response
+	 * Shorthand for sending a json response.
+	 *
+	 * @param  array $array
+	 * @return void
 	 */
-	public function sendJson($json)
+	public function json($array = array())
 	{
-		$this->setContentType('application/json');
-		$this->content = json_encode($json);
-		$this->send();
+		$this->sendJson($array);
 
 		return $this;
+	}
+
+	/**
+	 * Send a json formated response.
+	 *
+	 * @param  
+	 * @return Response
+	 */
+	public function sendJson($json = array())
+	{
+		$this->json = true;
+
+		// Set content type
+		$this->setContentType('application/json');
+
+		// Encode the data
+		$this->content = json_encode($json);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isJsonResponse()
+	{
+		return $this->json;
 	}
 
 	/**
@@ -197,7 +236,5 @@ class Response {
 	public function sendJsonP()
 	{
 		$this->setContentType('application/javascript');
-
-		return $this;
 	}
 }

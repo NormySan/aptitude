@@ -15,19 +15,11 @@
 		<![endif]-->
 	</head>
 	<body>
+		
+		<!-- Site Content -->
 		<div class="container">
-			<div class="jumbotron">
-				<h1>Welcome to aptitude!</h1>
-				<p>You have arrived at the default page for the aptitude framework.</p>
-				<p>
-					<a class="btn btn-primary btn-lg" role="button">Learn more</a>
-				</p>
-			</div>
-		</div>
-
-		<?php if (isset($content)): ?>
 			<?php echo $content; ?>
-		<?php endif; ?>
+		</div>
 
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://code.jquery.com/jquery.js"></script>

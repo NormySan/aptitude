@@ -3,7 +3,6 @@
 use Closure;
 use Aptitude\HTTP\Request;
 use Aptitude\HTTP\Response;
-use Aptitude\Router\Router;
 use Aptitude\Container;
 
 class RouteNotFoundException extends \Exception {}
@@ -59,7 +58,7 @@ class Application extends Container
 	 * @param \Aptitude\Router\Router
 	 * @return void
 	 */
-	public function setRouter(Router $router)
+	public function setRouter($router)
 	{
 		$this['router'] = $router;
 	}
@@ -71,44 +70,15 @@ class Application extends Container
 	{
 		$response = $this['router']->process();
 
-		$response->send();
+		$this->handleResponse($response);
 	}
 
 	/**
-	 * 
+	 * Sent the reponse to the world wide web!
 	 */
 	public function handleResponse($response)
 	{
-	}
-
-	public function processRequest()
-	{
-		$request = new Request;
-		$method = strtolower($request->getRequestMethod());
-
-		foreach ($this->routes as $route)
-		{
-			if (strpos($route['route'], '/') > 0 or strpos($route['route'], '/') === FALSE)
-			{
-				$route['route'] = '/' . $route['route'];
-			}
-
-			if ($this->currentRoute == $route['route'] && $method === $route['method'])
-			{
-				// If the route is callable it's a function so lets call the function.
-				if (is_callable($route['class'])) {
-					return call_user_func($route['class']);
-				}
-
-				$class = explode('@', $route['class']);
-
-				$loadedClass = new $class[0];
-
-				return $loadedClass->$class[1]();
-			}
-		}
-
-		throw new RouteNotFoundException('The requested route could not be found: ' . $this->currentRoute);
+		$response->send();
 	}
 
 	/**

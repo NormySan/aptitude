@@ -12,7 +12,5 @@ class View extends Facade
 	 *
 	 * @return string
 	 */
-	protected static function getFacadeService() {
-		return 'view';
-	}
+	protected static function getFacadeService() { return 'view'; }
 }

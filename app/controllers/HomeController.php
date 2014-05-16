@@ -9,7 +9,8 @@ class HomeController extends BaseController
 
 	public function index()
 	{
-		$data['hello'] = 'Hello Wolrd';
+		$data['title'] = 'Welcome to aptitude!';
+		$data['text'] = 'You have arrived at the default page for the aptitude framework.';
 
 		$this->layout->pageTitle = 'Welcome';
 		$this->layout->content = View::make('content', $data);
@@ -21,7 +22,8 @@ class HomeController extends BaseController
 
 		$data['content'] = $view->make('login');
 
-		return new Response($view->make('template', $data));
+		$this->layout->pageTitle = 'Welcome';
+		$this->layout->content = View::make('content', $data);
 	}
 
 	public function json()
@@ -30,7 +32,6 @@ class HomeController extends BaseController
 			'message' => 'I am the king of JSON'
 		);
 
-		$response = new Response;
-		$response->sendJson($array);
+		return Response::json($array);
 	}
 }
