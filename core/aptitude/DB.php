@@ -72,23 +72,29 @@ class DB
 	protected $limit = null;
 
 	/**
-	 * Constructor
-	 *
-	 * @param string
-	 * @param string
-	 * @param string
-	 * @param string
-	 * @param number The database port
+	 * Database config.
+	 * @var array
 	 */
-	function __construct($dblib, $hostname, $database, $username, $password, $port = null)
+	private $config = array();
+
+	/**
+	 * Constructor.
+	 */
+	function __construct($config)
+	{
+		$this->config = $config;
+		$this->connection = $this->connection();
+	}
+
+	public function connection()
 	{
 		// Get the connection string
-		$connectionString = $this->buildConnectionString($dblib, $hostname, $database, $port);
+		$connectionString = $this->buildConnectionString($driver, $hostname, $database, $port);
 
 		// Try to create a the new PDO connection
 		try {
-			$this->connection = new PDO($connectionString, $username, $password);
-			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$connection = new PDO($connectionString, $username, $password);
+			$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch(PDOException $e) {
 			throw new ConnectionFailedException('Could not connect to the database:' . $e->getMessage());
 		}
@@ -97,18 +103,20 @@ class DB
 	/**
 	 * Assembles
 	 */
-	public function buildConnectionString($dblib, $hostname, $database, $port)
+	public function buildConnectionString()
 	{
+		$config = $this->config[$this->config['default']];
+
 		// Cast the $port variable to an integer in case it's a string
-		$port = (int) $port;
+		$port = (int) $config->port || 3306;
 
 		// Make sure the supplied library is supported
-		if ($this->isValidLibrary($dblib)) {
-			$string .= $dblib . ':';
+		if ($this->isValidLibrary($config->driver)) {
+			$string .= $config->driver . ':';
 		}
 
 		// Add hostname and database to the string
-		$string .= 'host=' . $hostname . ';' . 'dbname=' . $database;
+		$string .= 'host=' . $config['hostname'] . ';' . 'dbname=' . $config['database'];
 
 		// If the port variable is not null and is a valid number 
 		// add it to the string.

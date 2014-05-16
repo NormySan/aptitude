@@ -11,6 +11,7 @@ class DatabaseService extends ServiceProvider
 	 */
 	public function register()
 	{
+		/*
 		// Factory that creates database connections.
 		$this->app->register('db.factory', function($container)
 		{
@@ -21,6 +22,14 @@ class DatabaseService extends ServiceProvider
 		$this->app->register('db', function($container)
 		{
 			return new DatabaseHandler($container, $container['db.factory']);
+		});
+		*/
+	
+		$this->app->register('db', function($app)
+		{
+			$config = $app->loadConfig('database');
+
+			return new DB($config);
 		});
 	}
 }

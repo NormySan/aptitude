@@ -18,20 +18,18 @@ class HomeController extends BaseController
 
 	public function login()
 	{
-		$view = new View;
-
-		$data['content'] = $view->make('login');
-
+		$data = array();
+		
 		$this->layout->pageTitle = 'Welcome';
-		$this->layout->content = View::make('content', $data);
+		$this->layout->content = View::make('login', $data);
 	}
 
 	public function json()
 	{
-		$array = array(
-			'message' => 'I am the king of JSON'
-		);
+		$user = new User;
 
-		return Response::json($array);
+		$users = $user->getAll();
+
+		return Response::json($users);
 	}
 }

@@ -37,7 +37,7 @@ class DatabaseHandler
 	 */
 	public function connection()
 	{
-		# code...
+		
 	}
 
 	/**
