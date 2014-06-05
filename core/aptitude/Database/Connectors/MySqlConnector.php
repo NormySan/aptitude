@@ -1,22 +1,7 @@
 <?php namespace Aptitude\Database\Connectors;
 
-use PDO;
-
-/**
-* MySQL Database Connector
-*/
 class MySqlConnector extends Connector implements ConnectorInterface
 {
-	/**
-	 * 
-	 */
-	protected $config
-
-	function __construct($driver, PDO $pdo, $config)
-	{
-		$this->config = $config;
-	}
-
 	/**
 	 * Create a database connection.
 	 *
@@ -24,6 +9,28 @@ class MySqlConnector extends Connector implements ConnectorInterface
 	 * @return PDO
 	 */
 	public function connect(array $config) {
-		return new PDO();
+		
+		return $this->createConnection($this->getDsn($config), $config, $this->getOptions());
+	}
+
+	/**
+	 * Create the PDO dsn connection string.
+	 * 
+	 * @param  array  $config Database configuration.
+	 * @return string         Dsn connection string.
+	 */
+	public function getDsn($config)
+	{
+		// Turn config array attributes into variables.
+		extract($config);
+
+		$dsn = 'mysql:host=' . $host . ';dbname=' . $database;
+
+		// If a port was set append it to the dsn string.
+		if (isset($port)) {
+			$dsn .= ';port=' . $port;
+		}
+
+		return $dsn;
 	}
 }

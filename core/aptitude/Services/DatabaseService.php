@@ -1,7 +1,8 @@
 <?php namespace Aptitude\Services;
 
 use Aptitude\ServiceProvider;
-use Aptitude\Database\DatabaseHandler;
+use Aptitude\DB;
+use Aptitude\Database\DatabaseManager;
 use Aptitude\Database\Connectors\ConnectionFactory;
 
 class DatabaseService extends ServiceProvider
@@ -9,10 +10,10 @@ class DatabaseService extends ServiceProvider
 	/**
 	 * Register the service.
 	 */
+	/*
 	public function register()
 	{
-		/*
-		// Factory that creates database connections.
+		// Factory that creates the database connections.
 		$this->app->register('db.factory', function($container)
 		{
 			return new ConnectionFactory($container);
@@ -21,13 +22,17 @@ class DatabaseService extends ServiceProvider
 		// Database handler that takes care of intantiated databases.
 		$this->app->register('db', function($container)
 		{
-			return new DatabaseHandler($container, $container['db.factory']);
+			$config = $container['app']->loadConfig('database');
+
+			return new DatabaseManager($container, $config, $container['db.factory']);
 		});
-		*/
-	
-		$this->app->register('db', function($app)
-		{
-			$config = $app->loadConfig('database');
+	}*/
+
+	public function register()
+	{
+		$this->app->register('db', function($container) {
+
+			$config = $container['app']->loadConfig('database');
 
 			return new DB($config);
 		});

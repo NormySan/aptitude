@@ -3,14 +3,14 @@
 use Aptitude\Facade;
 
 /**
-* Database facade
+* Redirect
 */
-class DB extends Facade
-{
+class Redirect extends Facade {
+
 	/**
 	 * Get the registered name of the component.
 	 *
 	 * @return string
 	 */
-	protected static function getFacadeService() { return 'db'; }
+	protected static function getFacadeService() { return 'redirect'; }
 }

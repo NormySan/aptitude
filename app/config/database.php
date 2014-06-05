@@ -15,7 +15,7 @@ return array(
 			'password' 	=> 'root',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
-			'port' 		=> 3306
+			'port' 		=> 8889
 		)
 	)
 );

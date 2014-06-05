@@ -5,10 +5,10 @@
 */
 class User
 {
-	public function getAll()
+	public function all()
 	{
-		$users = DB::table('users')->execute();
+		$users = DB::table('users')->get();
 
-		print_r($users);
+		return $users;
 	}
 }

@@ -1,5 +1,7 @@
 <?php namespace Aptitude\Database\Connections;
 
+use PDO;
+
 class Connection
 {
 	/**

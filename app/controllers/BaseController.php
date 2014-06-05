@@ -1,8 +1,5 @@
 <?php
 
-/**
-* 
-*/
 class BaseController extends Controller
 {
 	public function setupLayout()

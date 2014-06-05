@@ -22,6 +22,19 @@ class ConnectionFactory
 	}
 
 	/**
+	 * Create a new PDO connection from the supplied config.
+	 * 
+	 * @param  array  $config Database configuration.
+	 * @return object 		  PDO connection instance.
+	 */
+	public function make($config)
+	{
+		$connector = $this->createConnector($config)->connect($config);
+
+		return $this->createConnection($config['driver'], $connector, $config);
+	}
+
+	/**
 	 * Create a database connector.
 	 *
 	 * @param  array $config
@@ -35,7 +48,7 @@ class ConnectionFactory
 
 		switch ($config['driver']) {
 			case 'mysql':
-				return new MySqlConnection;
+				return new MySQLConnector;
 		}
 
 		throw new \InvalidArgumentException("The supplied database driver {$config['driver']} is not supported");
@@ -47,7 +60,7 @@ class ConnectionFactory
 	 * @param
 	 * @return \Aptitude\Database\Connection
 	 */
-	public function createConnection($driver, PDO $connection, $config)
+	public function createConnection($driver, PDO $connector, $config)
 	{
 		// If the database connection already exists in the container
 		// return that instead of creating a new one.
@@ -59,7 +72,7 @@ class ConnectionFactory
 		switch ($driver)
 		{
 			case 'mysql':
-				return new MySqlConnection($connection, $config);
+				return new MySqlConnection($connector, $config);
 		}
 
 		throw new \InvalidArgumentException("The supplied database driver {$driver} is not supported");

@@ -9,6 +9,7 @@ return array(
 	 */
 	'services' => array(
 		'Aptitude\Services\DatabaseService',
+		'Aptitude\Services\RedirectService',
 		'Aptitude\Services\ResponseService',
 		'Aptitude\Services\ViewService',
 	),
@@ -19,6 +20,7 @@ return array(
 	'aliases' => array(
 		'Controller'	=> 'Aptitude\Controller',
 		'DB'			=> 'Aptitude\Facades\DB',
+		'Redirect'		=> 'Aptitude\Facades\Redirect',
 		'Response'		=> 'Aptitude\Facades\Response',
 		'View' 			=> 'Aptitude\Facades\View',
 	)
