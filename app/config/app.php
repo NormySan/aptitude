@@ -2,7 +2,7 @@
 
 return array(
 
-	'site_location' => 'http://localhost:8888/aptitude/public',
+	//'site_location' => 'http://localhost:8888/aptitude/public',
 
 	/**
 	 * Services will be added to the applications container on startup.

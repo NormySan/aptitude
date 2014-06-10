@@ -43,7 +43,7 @@ class HomeController extends BaseController
 	/**
 	 * Example of returning a response with json data.
 	 * 
-	 * @return \Aptitude\HTTP\Response Response object loaded with json data.
+	 * @return Response
 	 */
 	public function json()
 	{
@@ -55,5 +55,31 @@ class HomeController extends BaseController
 
 		// Return the users as json data.
 		return Response::json($users);
+	}
+
+	/**
+	 * 
+	 */
+	public function jsonArticles()
+	{
+		$articles = DB::table('articles')->get();
+
+		return Response::json($articles);
+	}
+
+	/**
+	 * [jsonOneArticle description]
+	 * @param  [type] $id [description]
+	 * @return [type]     [description]
+	 */
+	public function jsonOneArticle($id)
+	{
+		$article = DB::table('articles')->where('id', $id)->get();
+
+		$author = DB::table('users')->where('id', $article[0]['author'])->get();
+
+		$article[0]['author'] = $author;
+
+		return Response::json($article);
 	}
 }

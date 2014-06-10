@@ -31,10 +31,29 @@ $collection->add('articles.create', new Route('/articles/create', array(
 	'method' => 'GET'
 )));
 
-$collection->add('', new Route('/articles', array(
+$collection->add('articles.all', new Route('/articles', array(
+	'controller' => 'ArticleController@save',
+	'method' => 'GET'
+)));
+
+$collection->add('articles.save', new Route('/articles', array(
 	'controller' => 'ArticleController@save',
 	'method' => 'POST'
 )));
 
+$collection->add('json.articles', new Route('/json/articles', array(
+	'controller' => 'HomeController@jsonArticles',
+	'method' => 'GET'
+)));
+
+$collection->add('json.articles', new Route('/json/articles/:id', array(
+	'controller' => 'HomeController@jsonOneArticle',
+	'method' => 'GET'
+)));
+
+$collection->add('users.all', new Route('/users', array(
+	'controller' => 'UsersController@all',
+	'method' => 'GET'
+)));
 
 return new Router($collection);

@@ -7,7 +7,7 @@ class User
 {
 	public function all()
 	{
-		$users = DB::table('users')->get();
+		$users = DB::table('users')->select('id', 'username', 'email')->get();
 
 		return $users;
 	}
